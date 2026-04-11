@@ -7,6 +7,7 @@ import GelirGiderFormu from './components/GelirGiderFormu';
 import Grafikler from './components/Grafikler';
 import KategoriYonetimi from './components/KategoriYonetimi';
 import GirisEkrani from './components/GirisEkrani';
+import Logo from './components/Logo';
 import { getCurrentUser, logout } from './lib/auth';
 
 import './assets/App.css';
@@ -89,7 +90,10 @@ function App() {
         <Navigasyon activeTab={activeTab} setActiveTab={setActiveTab} />
         <div className="main-area">
           <header className="topbar">
-            <h1>Budgetify</h1>
+            <div className="brand-mark brand-mark-topbar">
+              <Logo size={22} className="brand-logo" />
+              <h1>Budgetify</h1>
+            </div>
             <div className="user-info">
               <div className="small-muted">Hoşgeldin, {userName}</div>
               <div className="avatar">{userInitials}</div>

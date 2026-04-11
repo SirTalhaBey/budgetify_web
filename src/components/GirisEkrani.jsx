@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { FiMail, FiLock } from 'react-icons/fi';
 import auth, { login, register as registerUser, requestPasswordReset } from '../lib/auth';
 import { neonConfigured } from '../lib/neon';
+import Logo from './Logo';
 
 // setIsLoggedIn prop'unu App.jsx'ten alıyoruz
 const GirisEkrani = ({ setIsLoggedIn }) => {
@@ -182,7 +183,10 @@ const GirisEkrani = ({ setIsLoggedIn }) => {
       <div className="login-card auth-card" style={{ width: '380px' }}>
 
         {/* Logo ve Başlık */}
-        <h3 className="auth-title">Budgetify</h3>
+        <div className="brand-mark auth-brand">
+          <Logo size={28} className="brand-logo" />
+          <h3 className="auth-title">Budgetify</h3>
+        </div>
         <h4 className="small-muted" style={{ marginBottom: '20px' }}>Hoş Geldiniz!</h4>
 
         <form onSubmit={handleLogin} className="auth-form">

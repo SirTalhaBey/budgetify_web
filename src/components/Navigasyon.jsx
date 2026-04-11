@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { FiHome, FiPlusCircle, FiPieChart, FiList } from 'react-icons/fi';
+import Logo from './Logo';
 
 const Navigasyon = ({ activeTab, setActiveTab }) => {
   const tabs = [
@@ -13,7 +14,10 @@ const Navigasyon = ({ activeTab, setActiveTab }) => {
 
   return (
     <div className="sidebar">
-      <h2>Budgetify</h2>
+      <div className="brand-mark brand-mark-sidebar">
+        <Logo size={26} className="brand-logo" />
+        <h2>Budgetify</h2>
+      </div>
       <nav>
         {tabs.map((tab) => (
           <button
