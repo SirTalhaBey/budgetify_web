@@ -45,7 +45,21 @@ export function getCurrentUser() {
     }
 
     const user = localStorage.getItem(USER_KEY);
-    return user ? JSON.parse(user) : null;
+    if (!user) return null;
+    try {
+        const parsed = JSON.parse(user);
+        // Ensure parsed user has an id; otherwise treat as not logged in
+        if (!parsed || !parsed.id) {
+            localStorage.removeItem(TOKEN_KEY);
+            localStorage.removeItem(USER_KEY);
+            return null;
+        }
+        return parsed;
+    } catch (e) {
+        localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(USER_KEY);
+        return null;
+    }
 }
 
 // Check if user is authenticated

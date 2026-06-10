@@ -6,11 +6,17 @@ import Dashboard from './components/Dashboard';
 import GelirGiderFormu from './components/GelirGiderFormu';
 import Grafikler from './components/Grafikler';
 import KategoriYonetimi from './components/KategoriYonetimi';
+import Recurring from './components/Recurring';
+import Reports from './components/Reports';
 import GirisEkrani from './components/GirisEkrani';
 import Logo from './components/Logo';
+import AiChat from './components/AiChat';
 import { getCurrentUser, logout } from './lib/auth';
+import { getRecurring, saveRecurring } from './lib/localService';
+import { addTransaction } from './lib/dataService';
 
 import './assets/App.css';
+import './components/AiChat.css';
 import ErrorBoundary from './components/ErrorBoundary';
 
 function App() {
@@ -18,6 +24,7 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0); // For refreshing data after add
+  const [showAiChat, setShowAiChat] = useState(false);
 
   // Check if user is already logged in on mount
   useEffect(() => {
@@ -25,6 +32,48 @@ function App() {
     if (currentUser) {
       setUser(currentUser);
       setIsLoggedIn(true);
+      // process recurring rules for current user
+      (async () => {
+        try {
+          const uid = currentUser.id;
+          const rules = getRecurring(uid) || [];
+          const today = new Date();
+          const updated = [...rules];
+
+          for (let i = 0; i < rules.length; i++) {
+            const r = { ...rules[i] };
+            if (!r.active || !r.nextDate) continue;
+
+            let next = new Date(r.nextDate);
+            while (next <= today) {
+              await addTransaction(uid, {
+                category_id: r.category_id || null,
+                amount: r.amount,
+                currency: 'TRY',
+                type: r.type || 'expense',
+                date: next.toISOString().slice(0,10),
+                description: r.description || ''
+              });
+
+              if (r.frequency === 'monthly') {
+                next.setMonth(next.getMonth() + 1);
+              } else if (r.frequency === 'weekly') {
+                next.setDate(next.getDate() + 7);
+              } else {
+                next.setDate(next.getDate() + 1);
+              }
+            }
+
+            r.nextDate = next.toISOString().slice(0,10);
+            updated[i] = r;
+          }
+
+          saveRecurring(currentUser.id, updated);
+          setRefreshKey(k => k + 1);
+        } catch (e) {
+          console.error('Recurring processing failed', e);
+        }
+      })();
     }
   }, []);
 
@@ -67,6 +116,10 @@ function App() {
         return <Grafikler key={refreshKey} userId={userId} />;
       case 'categories':
         return <KategoriYonetimi userId={userId} />;
+      case 'recurring':
+        return <Recurring userId={userId} />;
+      case 'reports':
+        return <Reports userId={userId} />;
       default:
         return <Dashboard key={refreshKey} userId={userId} setActiveTab={setActiveTab} />;
     }
@@ -104,6 +157,11 @@ function App() {
           <main id="main" className="content-area container">
             {renderContent()}
           </main>
+          {/* Wallet button to open AI chat (sağ altta) */}
+          <button className="wallet-button" onClick={() => setShowAiChat(true)} aria-label="Yardım">
+            <span className="wallet-icon" style={{fontSize:18}}>💬</span>
+          </button>
+          {showAiChat && <AiChat onClose={() => setShowAiChat(false)} />}
         </div>
       </div>
     );

@@ -24,6 +24,7 @@ const formatDate = (dateStr) => {
 const Dashboard = ({ userId, setActiveTab }) => {
   const [stats, setStats] = useState({ totalIncome: 0, totalExpense: 0, balance: 0 });
   const [transactions, setTransactions] = useState([]);
+  const [budgetAlerts, setBudgetAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Load data on mount and when userId changes
@@ -45,6 +46,9 @@ const Dashboard = ({ userId, setActiveTab }) => {
       ]);
       setStats(statsData);
       setTransactions(transactionsData);
+      // compute budgets alerts using available transactions
+      // budgets feature removed — no alerts to compute
+      setBudgetAlerts([]);
     } catch (err) {
       console.error('Dashboard data loading error:', err);
     } finally {
@@ -75,7 +79,7 @@ const Dashboard = ({ userId, setActiveTab }) => {
   return (
     <div className="dashboard-content">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h2>Bütçe Özeti</h2>
+        <h2>Genel Bakış</h2>
         <button
           className="green-button"
           onClick={() => setActiveTab('add')}

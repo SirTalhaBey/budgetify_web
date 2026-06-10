@@ -10,6 +10,7 @@ const Navigasyon = ({ activeTab, setActiveTab }) => {
     { id: 'add', name: 'Gelir/Gider Ekle', icon: <FiPlusCircle /> },
     { id: 'charts', name: 'Grafikler', icon: <FiPieChart /> },
     { id: 'categories', name: 'Kategori Yönetimi', icon: <FiList /> },
+    { id: 'reports', name: 'Raporlar', icon: <FiPieChart /> },
   ];
 
   return (
