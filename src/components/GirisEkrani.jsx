@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { FiMail, FiLock } from 'react-icons/fi';
-import auth, { login, register as registerUser, requestPasswordReset } from '../lib/auth';
+import { login, register as registerUser } from '../lib/auth';
 import { neonConfigured } from '../lib/neon';
 
 // setIsLoggedIn prop'unu App.jsx'ten alıyoruz
@@ -14,12 +14,6 @@ const GirisEkrani = ({ setIsLoggedIn }) => {
   const [loginErrors, setLoginErrors] = useState({});
   const [loginLoading, setLoginLoading] = useState(false);
 
-  const [showForgot, setShowForgot] = useState(false);
-  const [forgotEmail, setForgotEmail] = useState('');
-  const [forgotLoading, setForgotLoading] = useState(false);
-  const [forgotError, setForgotError] = useState('');
-  const forgotRef = useRef(null);
-
   const [showRegister, setShowRegister] = useState(false);
   const [registerData, setRegisterData] = useState({ name: '', email: '', password: '' });
   const [registerLoading, setRegisterLoading] = useState(false);
@@ -29,22 +23,14 @@ const GirisEkrani = ({ setIsLoggedIn }) => {
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === 'Escape') {
-        if (showForgot) closeForgot();
         if (showRegister) closeRegister();
       }
     };
-    if (showForgot || showRegister) {
+    if (showRegister) {
       document.addEventListener('keydown', onKey);
     }
     return () => document.removeEventListener('keydown', onKey);
-  }, [showForgot, showRegister]);
-
-  useEffect(() => {
-    if (showForgot && forgotRef.current) {
-      const focusable = forgotRef.current.querySelector('input, button, [tabindex]:not([tabindex="-1"])');
-      focusable && focusable.focus();
-    }
-  }, [showForgot]);
+  }, [showRegister]);
 
   useEffect(() => {
     if (showRegister && registerRef.current) {
@@ -83,8 +69,7 @@ const GirisEkrani = ({ setIsLoggedIn }) => {
     if (!useNeon) {
       // fallback mock for development without database
       return new Promise((resolve) => setTimeout(() => {
-        if (action === 'forgot') resolve({ message: 'reset_sent' });
-        else if (action === 'register') resolve({ user: { name: payload.name } });
+        if (action === 'register') resolve({ user: { name: payload.name } });
         else if (action === 'login') resolve({ token: 'mock-token' });
         else resolve({});
       }, 900));
@@ -100,10 +85,6 @@ const GirisEkrani = ({ setIsLoggedIn }) => {
         password: payload.password,
         name: payload.name
       });
-    }
-
-    if (action === 'forgot') {
-      return await requestPasswordReset(payload.email);
     }
 
     return {};
@@ -134,23 +115,6 @@ const GirisEkrani = ({ setIsLoggedIn }) => {
     } finally {
       setLoginLoading(false);
     }
-  };
-
-  const openForgot = () => { setForgotError(''); setShowForgot(true); };
-  const closeForgot = () => { setForgotEmail(''); setForgotError(''); setShowForgot(false); };
-  const submitForgot = async (e) => {
-    e.preventDefault();
-    setForgotError('');
-    if (!forgotEmail) { setForgotError('E-posta girin'); document.getElementById('forgot-email')?.focus(); return; }
-    if (!validateEmail(forgotEmail)) { setForgotError('Geçerli bir e-posta girin'); document.getElementById('forgot-email')?.focus(); return; }
-    setForgotLoading(true);
-    try {
-      await authRequest('forgot', { email: forgotEmail });
-      alert('Parola sıfırlama e-postası gönderildi.');
-      closeForgot();
-    } catch (err) {
-      setForgotError(err.message || 'Bir hata oluştu');
-    } finally { setForgotLoading(false); }
   };
 
   const openRegister = () => { setRegisterError(''); setShowRegister(true); };
@@ -226,30 +190,10 @@ const GirisEkrani = ({ setIsLoggedIn }) => {
           </button>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <button type="button" className="link-button small-muted" onClick={openForgot} style={{ background: 'transparent', border: 'none', padding: 0, textDecoration: 'none', fontSize: '14px', cursor: 'pointer' }}>Şifremi unuttum</button>
             <button type="button" className="secondary-button" style={{ marginLeft: 'auto' }} onClick={openRegister}>Hesap Oluştur</button>
           </div>
         </form>
       </div>
-
-      {/* Modals */}
-      {showForgot && (
-        <div className="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="forgot-title" aria-describedby="forgot-desc">
-          <div className="modal" ref={forgotRef} onKeyDown={(e) => handleModalKeyDown(e, forgotRef)}>
-            <h4 id="forgot-title">Şifre Sıfırlama</h4>
-            <p id="forgot-desc" className="small-muted">E-posta adresinizi girin, size sıfırlama linki göndereceğiz.</p>
-            <form onSubmit={submitForgot} style={{ marginTop: 12 }}>
-              <label className="sr-only" htmlFor="forgot-email">E-posta</label>
-              <input id="forgot-email" aria-describedby={forgotError ? 'forgot-error' : undefined} className="modal-input" type="email" placeholder="E-posta" value={forgotEmail} onChange={(e) => setForgotEmail(e.target.value)} />
-              {forgotError && <div id="forgot-error" className="field-error" role="alert" style={{ marginTop: 8 }}>{forgotError}</div>}
-              <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-                <button type="submit" className="green-button" disabled={forgotLoading}>{forgotLoading ? 'Gönderiliyor...' : 'Gönder'}</button>
-                <button type="button" className="secondary-button" onClick={closeForgot} disabled={forgotLoading}>Kapat</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
       {showRegister && (
         <div className="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="register-title" aria-describedby="register-desc">
