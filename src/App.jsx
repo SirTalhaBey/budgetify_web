@@ -9,7 +9,6 @@ import KategoriYonetimi from './components/KategoriYonetimi';
 import Recurring from './components/Recurring';
 import Reports from './components/Reports';
 import GirisEkrani from './components/GirisEkrani';
-import Logo from './components/Logo';
 import AiChat from './components/AiChat';
 import { getCurrentUser, logout } from './lib/auth';
 import { getRecurring, saveRecurring } from './lib/localService';
@@ -143,10 +142,7 @@ function App() {
         <Navigasyon activeTab={activeTab} setActiveTab={setActiveTab} />
         <div className="main-area">
           <header className="topbar">
-            <div className="brand-mark brand-mark-topbar">
-              <Logo size={22} className="brand-logo" />
-              <h1>Budgetify</h1>
-            </div>
+            <h1>Budgetify</h1>
             <div className="user-info">
               <div className="small-muted">Hoşgeldin, {userName}</div>
               <div className="avatar">{userInitials}</div>

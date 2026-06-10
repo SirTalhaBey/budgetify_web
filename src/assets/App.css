@@ -52,27 +52,6 @@ body {
   letter-spacing: 0.4px
 }
 
-.brand-mark {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.brand-logo {
-  color: var(--accent);
-  flex-shrink: 0;
-}
-
-.brand-mark-sidebar {
-  margin-bottom: 18px;
-}
-
-.brand-mark-sidebar h2,
-.brand-mark-topbar h1,
-.auth-brand .auth-title {
-  margin: 0;
-}
-
 .nav-item {
   display: flex;
   align-items: center;
