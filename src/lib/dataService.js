@@ -2,7 +2,6 @@
 // Centralized data service for Budgetify - Handles all database operations
 
 import { query, queryOne, neonConfigured } from './neon';
-import { getUserId } from './auth';
 
 // =====================================================
 // TRANSACTIONS

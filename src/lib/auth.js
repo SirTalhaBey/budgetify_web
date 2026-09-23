@@ -55,7 +55,7 @@ export function getCurrentUser() {
             return null;
         }
         return parsed;
-    } catch (e) {
+    } catch (_err) {
         localStorage.removeItem(TOKEN_KEY);
         localStorage.removeItem(USER_KEY);
         return null;
@@ -127,8 +127,8 @@ export async function login({ email, password }) {
         throw new Error('E-posta veya şifre hatalı');
     }
 
-    // Remove password_hash from user object
-    const { password_hash, ...safeUser } = user;
+    const safeUser = { ...user };
+    delete safeUser.password_hash;
 
     // Create token and save to localStorage
     const token = createToken({ userId: safeUser.id, email: safeUser.email });

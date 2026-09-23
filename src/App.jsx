@@ -20,17 +20,15 @@ import ErrorBoundary from './components/ErrorBoundary';
 
 function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => getCurrentUser());
+  const [isLoggedIn, setIsLoggedIn] = useState(() => !!getCurrentUser());
   const [refreshKey, setRefreshKey] = useState(0); // For refreshing data after add
   const [showAiChat, setShowAiChat] = useState(false);
 
-  // Check if user is already logged in on mount
+  // Check if user is already logged in on mount & process recurring rules
   useEffect(() => {
     const currentUser = getCurrentUser();
     if (currentUser) {
-      setUser(currentUser);
-      setIsLoggedIn(true);
       // process recurring rules for current user
       (async () => {
         try {
@@ -38,12 +36,14 @@ function App() {
           const rules = getRecurring(uid) || [];
           const today = new Date();
           const updated = [...rules];
+          let modified = false;
 
           for (let i = 0; i < rules.length; i++) {
             const r = { ...rules[i] };
             if (!r.active || !r.nextDate) continue;
 
             let next = new Date(r.nextDate);
+            let added = false;
             while (next <= today) {
               await addTransaction(uid, {
                 category_id: r.category_id || null,
@@ -53,6 +53,7 @@ function App() {
                 date: next.toISOString().slice(0,10),
                 description: r.description || ''
               });
+              added = true;
 
               if (r.frequency === 'monthly') {
                 next.setMonth(next.getMonth() + 1);
@@ -63,12 +64,17 @@ function App() {
               }
             }
 
-            r.nextDate = next.toISOString().slice(0,10);
-            updated[i] = r;
+            if (added) {
+              r.nextDate = next.toISOString().slice(0,10);
+              updated[i] = r;
+              modified = true;
+            }
           }
 
-          saveRecurring(currentUser.id, updated);
-          setRefreshKey(k => k + 1);
+          if (modified) {
+            saveRecurring(currentUser.id, updated);
+            setRefreshKey(k => k + 1);
+          }
         } catch (e) {
           console.error('Recurring processing failed', e);
         }

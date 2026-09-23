@@ -6,19 +6,19 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, L
 const Reports = ({ userId }) => {
   const [byCategory, setByCategory] = useState([]);
   const [monthly, setMonthly] = useState([]);
-  const [range, setRange] = useState({ from: '', to: '' });
-
-  useEffect(() => {
-    if (!userId) return;
-    load();
-  }, [userId]);
 
   const load = async () => {
+    if (!userId) return;
     const cat = await getExpenseByCategory(userId);
     const mon = await getMonthlyExpenses(userId);
     setByCategory(cat || []);
     setMonthly(mon || []);
   };
+
+  useEffect(() => {
+    if (!userId) return;
+    load();
+  }, [userId]);
 
   return (
     <div>

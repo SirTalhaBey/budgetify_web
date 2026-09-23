@@ -8,17 +8,18 @@ const Recurring = ({ userId }) => {
   const [categories, setCategories] = useState([]);
   const [form, setForm] = useState({ description: '', amount: '', type: 'expense', category_id: '', frequency: 'monthly', nextDate: '' });
 
-  useEffect(() => {
-    if (!userId) return;
-    load();
-  }, [userId]);
-
   const load = async () => {
+    if (!userId) return;
     const cats = await getCategories(userId);
     setCategories(cats || []);
     const saved = getRecurring(userId);
     setRules(saved || []);
   };
+
+  useEffect(() => {
+    if (!userId) return;
+    load();
+  }, [userId]);
 
   const save = (next) => {
     setRules(next);
